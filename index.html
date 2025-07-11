@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ChatGPT Webアプリ</title>
+  <style>
+    body { font-family: sans-serif; padding: 2em; }
+    textarea { width: 100%; height: 100px; }
+    #response { white-space: pre-wrap; margin-top: 1em; }
+  </style>
+</head>
+<body>
+  <h1>ChatGPTに質問してみよう</h1>
+  <textarea id="userInput" placeholder="質問を入力してください..."></textarea>
+  <br>
+  <button onclick="sendToGPT()">送信</button>
+  <div id="response"></div>
+
+  <script>
+    async function sendToGPT() {
+      const input = document.getElementById("userInput").value;
+      const responseDiv = document.getElementById("response");
+
+      if (!input) {
+        responseDiv.textContent = "入力してください。";
+        return;
+      }
+
+      responseDiv.textContent = "ChatGPTに問い合わせ中...";
+
+      try {
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_API_KEY_HERE" // ←自分のAPIキーに置き換える
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: input }]
+          })
+        });
+
+        const data = await res.json();
+        responseDiv.textContent = data.choices?.[0]?.message?.content || "回答が取得できませんでした。";
+
+      } catch (err) {
+        responseDiv.textContent = "エラーが発生しました：" + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
